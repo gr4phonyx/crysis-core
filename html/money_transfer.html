@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfert d'argent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent;
+            overflow: hidden;
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #moneyTransferMenu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 30, 0.98);
+            border-radius: 15px;
+            padding: 30px;
+            min-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .menu-header h2 {
+            color: #3b82f6;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .balance-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        .balance-item {
+            background: rgba(50, 50, 60, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .balance-label {
+            font-size: 0.85em;
+            color: #9ca3af;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d1d5db;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(75, 85, 99, 0.5);
+            border-radius: 8px;
+            background: rgba(50, 50, 60, 0.8);
+            color: white;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .player-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(50, 50, 60, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .player-item {
+            padding: 10px;
+            margin-bottom: 5px;
+            background: rgba(75, 85, 99, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .player-item:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateX(5px);
+        }
+
+        .player-item.selected {
+            background: rgba(59, 130, 246, 0.5);
+            border: 2px solid #3b82f6;
+        }
+
+        .fees-info {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 3px solid #f59e0b;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(75, 85, 99, 0.8);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(55, 65, 81, 0.9);
+        }
+
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-amount {
+            padding: 8px;
+            background: rgba(75, 85, 99, 0.3);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .quick-amount:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="moneyTransferMenu" class="hidden">
+        <div class="menu-header">
+            <h2>💰 Transfert d'argent</h2>
+        </div>
+
+        <div class="balance-info">
+            <div class="balance-item">
+                <div class="balance-label">💵 Liquide</div>
+                <div class="balance-amount" id="cashBalance">0€</div>
+            </div>
+            <div class="balance-item">
+                <div class="balance-label">🏦 Banque</div>
+                <div class="balance-amount" id="bankBalance">0€</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Type de transfert</label>
+            <select id="moneyType">
+                <option value="cash">💵 Liquide</option>
+                <option value="bank">🏦 Banque</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Joueur proche</label>
+            <div class="player-list" id="playerList">
+                <div style="text-align: center; color: #9ca3af; padding: 20px;">
+                    Aucun joueur proche
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Montant</label>
+            <input type="number" id="amount" placeholder="0" min="1">
+            <div class="quick-amounts">
+                <div class="quick-amount" data-amount="100">100€</div>
+                <div class="quick-amount" data-amount="500">500€</div>
+                <div class="quick-amount" data-amount="1000">1K€</div>
+                <div class="quick-amount" data-amount="5000">5K€</div>
+            </div>
+        </div>
+
+        <div class="fees-info" id="feesInfo" style="display: none;">
+            ⚠️ Frais bancaires: <span id="feesAmount">0€</span> (2%)
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-secondary" id="cancelBtn">Annuler</button>
+            <button class="btn btn-primary" id="confirmBtn" disabled>Transférer</button>
+        </div>
+    </div>
+
+    <script>
+        const menu = document.getElementById('moneyTransferMenu');
+        const playerList = document.getElementById('playerList');
+        const moneyTypeSelect = document.getElementById('moneyType');
+        const amountInput = document.getElementById('amount');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const feesInfo = document.getElementById('feesInfo');
+        const feesAmount = document.getElementById('feesAmount');
+
+        let selectedPlayer = null;
+        let nearbyPlayers = [];
+        let playerBalance = { cash: 0, bank: 0 };
+
+        // Sélection montant rapide
+        document.querySelectorAll('.quick-amount').forEach(btn => {
+            btn.addEventListener('click', function() {
+                amountInput.value = this.dataset.amount;
+                updateFees();
+                updateConfirmButton();
+            });
+        });
+
+        // Mise à jour des frais
+        function updateFees() {
+            const amount = parseInt(amountInput.value) || 0;
+            const moneyType = moneyTypeSelect.value;
+            
+            if (moneyType === 'bank' && amount > 0) {
+                const fees = Math.max(10, Math.min(Math.floor(amount * 0.02), 1000));
+                feesAmount.textContent = fees + '€';
+                feesInfo.style.display = 'block';
+            } else {
+                feesInfo.style.display = 'none';
+            }
+        }
+
+        moneyTypeSelect.addEventListener('change', updateFees);
+        amountInput.addEventListener('input', () => {
+            updateFees();
+            updateConfirmButton();
+        });
+
+        // Mise à jour du bouton confirmer
+        function updateConfirmButton() {
+            const amount = parseInt(amountInput.value) || 0;
+            const hasPlayer = selectedPlayer !== null;
+            const hasAmount = amount > 0;
+            confirmBtn.disabled = !(hasPlayer && hasAmount);
+        }
+
+        // Afficher menu
+        function openMenu(players, balance) {
+            nearbyPlayers = players;
+            playerBalance = balance;
+            
+            document.getElementById('cashBalance').textContent = balance.cash.toLocaleString() + '€';
+            document.getElementById('bankBalance').textContent = balance.bank.toLocaleString() + '€';
+            
+            playerList.innerHTML = '';
+            
+            if (players.length === 0) {
+                playerList.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 20px;">Aucun joueur proche</div>';
+            } else {
+                players.forEach(player => {
+                    const item = document.createElement('div');
+                    item.className = 'player-item';
+                    item.innerHTML = `
+                        <span>${player.name}</span>
+                        <span style="color: #9ca3af;">ID: ${player.id}</span>
+                    `;
+                    item.addEventListener('click', () => selectPlayer(player.id, item));
+                    playerList.appendChild(item);
+                });
+            }
+            
+            menu.classList.remove('hidden');
+            amountInput.value = '';
+            selectedPlayer = null;
+            updateConfirmButton();
+        }
+
+        function selectPlayer(playerId, element) {
+            document.querySelectorAll('.player-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedPlayer = playerId;
+            updateConfirmButton();
+        }
+
+        // Confirmer
+        confirmBtn.addEventListener('click', () => {
+            const amount = parseInt(amountInput.value);
+            const moneyType = moneyTypeSelect.value;
+            
+            fetch(`https://${GetParentResourceName()}/moneyTransfer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    target: selectedPlayer,
+                    moneyType: moneyType,
+                    amount: amount
+                })
+            });
+            
+            closeMenu();
+        });
+
+        // Annuler
+        cancelBtn.addEventListener('click', closeMenu);
+
+        function closeMenu() {
+            menu.classList.add('hidden');
+            fetch(`https://${GetParentResourceName()}/closeMoneyMenu`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
+        }
+
+        // Messages NUI
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+            
+            if (data.action === 'openMoneyTransfer') {
+                openMenu(data.players, data.balance);
+            } else if (data.action === 'closeMoneyTransfer') {
+                closeMenu();
+            }
+        });
+
+        // ESC pour fermer
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !menu.classList.contains('hidden')) {
+                closeMenu();
+            }
+        });
+
+        function GetParentResourceName() {
+            if (window.location.hostname === 'nui-game-internal') {
+                return window.location.pathname.replace(/^\/|\/$/g, '').split('/')[0];
+            }
+            return "crysis-core";
+        }
+    </script>
+</body>
+</html>

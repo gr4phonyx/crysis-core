@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventaire</title>
+    <link rel="stylesheet" href="css/inventory.css">
+</head>
+<body>
+    <div id="inventoryContainer" class="hidden">
+        <div class="inventory-wrapper">
+            <!-- Header -->
+            <div class="inventory-header">
+                <h2>Inventaire</h2>
+                <div class="inventory-stats">
+                    <div class="weight-display">
+                        <span class="icon">⚖️</span>
+                        <span id="currentWeight">0</span>/<span id="maxWeight">50</span> kg
+                    </div>
+                    <div class="slots-display">
+                        <span class="icon">📦</span>
+                        <span id="usedSlots">0</span>/<span id="maxSlots">30</span> slots
+                    </div>
+                </div>
+                <button id="closeInventory" class="close-btn">✕</button>
+            </div>
+
+            <!-- Grid d'inventaire -->
+            <div class="inventory-grid" id="inventoryGrid">
+                <!-- Les slots seront générés dynamiquement -->
+            </div>
+
+            <!-- Panel d'information de l'item sélectionné -->
+            <div class="item-info-panel" id="itemInfoPanel">
+                <div class="no-selection">
+                    <span class="icon">📋</span>
+                    <p>Sélectionnez un item pour voir ses détails</p>
+                </div>
+                
+                <div class="item-details hidden" id="itemDetails">
+                    <img id="itemImage" src="" alt="">
+                    <h3 id="itemName"></h3>
+                    <div class="item-meta">
+                        <span class="item-type" id="itemType"></span>
+                        <span class="item-weight">⚖️ <span id="itemWeight"></span> kg</span>
+                    </div>
+                    <p class="item-description" id="itemDescription"></p>
+                    <div class="item-quantity">
+                        <span>Quantité:</span>
+                        <span id="itemQuantity"></span>
+                    </div>
+                    
+                    <div class="item-actions">
+                        <button id="useItemBtn" class="btn btn-primary">
+                            <span>✓</span> Utiliser
+                        </button>
+                        <button id="dropItemBtn" class="btn btn-danger">
+                            <span>⤓</span> Jeter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal pour jeter un item -->
+        <div id="dropModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Jeter un item</h3>
+                <p>Combien voulez-vous jeter ?</p>
+                <div class="quantity-selector">
+                    <button id="decreaseQuantity">-</button>
+                    <input type="number" id="dropQuantity" value="1" min="1">
+                    <button id="increaseQuantity">+</button>
+                </div>
+                <div class="modal-actions">
+                    <button id="cancelDrop" class="btn btn-secondary">Annuler</button>
+                    <button id="confirmDrop" class="btn btn-danger">Jeter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/inventory.js"></script>
+</body>
+</html>
